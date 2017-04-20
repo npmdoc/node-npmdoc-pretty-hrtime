@@ -61,12 +61,105 @@
 
     <li class="apidocModuleLi"><a href="#apidoc.module.pretty-hrtime">module pretty-hrtime</a><ol>
 
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.pretty-hrtime.pretty-hrtime">
+            function <span class="apidocSignatureSpan"></span>pretty-hrtime
+            <span class="apidocSignatureSpan">(source, opts)</span>
+            </a>
+
+        </li>
+
     </ol></li>
 
 </ol></div>
 
 <div class="apidocSectionDiv">
 <h1><a href="#apidoc.module.pretty-hrtime" id="apidoc.module.pretty-hrtime">module pretty-hrtime</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.pretty-hrtime.pretty-hrtime" id="apidoc.element.pretty-hrtime.pretty-hrtime">
+        function <span class="apidocSignatureSpan"></span>pretty-hrtime
+        <span class="apidocSignatureSpan">(source, opts)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">pretty-hrtime = function (source, opts) {
+	var verbose, precise, i, spot, sourceAtStep, valAtStep, decimals, strAtStep, results, totalSeconds;
+
+	verbose = false;
+	precise = false;
+	if (opts) {
+		verbose = opts.verbose || false;
+		precise = opts.precise || false;
+	}
+
+	if (!Array.isArray(source) || source.length !== 2) {
+		return &#x27;&#x27;;
+	}
+	if (typeof source[0] !== &#x27;number&#x27; || typeof source[1] !== &#x27;number&#x27;) {
+		return &#x27;&#x27;;
+	}
+
+	// normalize source array due to changes in node v5.4+
+	if (source[1] &#x3c; 0) {
+		totalSeconds = source[0] + source[1] / 1e9;
+		source[0] = parseInt(totalSeconds);
+		source[1] = parseFloat((totalSeconds % 1).toPrecision(9)) * 1e9;
+	}
+
+	results = &#x27;&#x27;;
+
+	// foreach unit
+	for (i = 0; i &#x3c; 6; i++) {
+		spot = i &#x3c; 3 ? 0 : 1; // grabbing first or second spot in source array
+		sourceAtStep = source[spot];
+		if (i !== 3 &#x26;&#x26; i !== 0) {
+			sourceAtStep = sourceAtStep % convert[i-1]; // trim off previous portions
+		}
+		if (i === 2) {
+			sourceAtStep += source[1]/1e9; // get partial seconds from other portion of the array
+		}
+		valAtStep = sourceAtStep / convert[i]; // val at this unit
+		if (valAtStep &#x3e;= 1) {
+			if (verbose) {
+				valAtStep = Math.floor(valAtStep); // deal in whole units, subsequent laps will get the decimal portion
+			}
+			if (!precise) {
+				// don&#x27;t fling too many decimals
+				decimals = valAtStep &#x3e;= 10 ? 0 : 2;
+				strAtStep = valAtStep.toFixed(decimals);
+			} else {
+				strAtStep = valAtStep.toString();
+			}
+			if (strAtStep.indexOf(&#x27;.&#x27;) &#x3e; -1 &#x26;&#x26; strAtStep[strAtStep.length-1] === &#x27;0&#x27;) {
+				strAtStep = strAtStep.replace(/\.?0+$/,&#x27;&#x27;); // remove trailing zeros
+			}
+			if (results) {
+				results += &#x27; &#x27;; // append space if we have a previous value
+			}
+			results += strAtStep; // append the value
+			// append units
+			if (verbose) {
+				results += &#x27; &#x27;+verboseDesc[i];
+				if (strAtStep !== &#x27;1&#x27;) {
+					results += &#x27;s&#x27;;
+				}
+			} else {
+				results += &#x27; &#x27;+minimalDesc[i];
+			}
+			if (!verbose) {
+				break; // verbose gets as many groups as necessary, the rest get only one
+			}
+		}
+	}
+
+	return results;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
 
 </div>
 

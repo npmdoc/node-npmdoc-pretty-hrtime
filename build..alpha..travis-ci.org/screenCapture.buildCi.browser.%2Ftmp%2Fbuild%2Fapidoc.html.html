@@ -1,0 +1,165 @@
+<html><head></head><body><div class="apidocDiv">
+<style>
+/*csslint
+*/
+.apidocDiv {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.apidocDiv a[href] {
+    color: #33f;
+    font-weight: bold;
+    text-decoration: none;
+}
+.apidocDiv a[href]:hover {
+    text-decoration: underline;
+}
+.apidocCodeCommentSpan {
+    background: #bbf;
+    color: #000;
+    display: block;
+}
+.apidocCodeKeywordSpan {
+    color: #d00;
+    font-weight: bold;
+}
+.apidocCodePre {
+    background: #eef;
+    border: 1px solid;
+    color: #777;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.apidocFooterDiv {
+    margin-top: 20px;
+    text-align: center;
+}
+.apidocModuleLi {
+    margin-top: 10px;
+}
+.apidocSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.apidocSignatureSpan {
+    color: #777;
+    font-weight: bold;
+}
+</style>
+<h1>api documentation for
+    <a href="https://github.com/robrich/pretty-hrtime">pretty-hrtime (v1.0.3)</a>
+</h1>
+<h4>process.hrtime() to words</h4>
+<div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.pretty-hrtime">module pretty-hrtime</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.pretty-hrtime.pretty-hrtime">
+            function <span class="apidocSignatureSpan"></span>pretty-hrtime
+            <span class="apidocSignatureSpan">(source, opts)</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+</ol></div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.pretty-hrtime" id="apidoc.module.pretty-hrtime">module pretty-hrtime</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.pretty-hrtime.pretty-hrtime" id="apidoc.element.pretty-hrtime.pretty-hrtime">
+        function <span class="apidocSignatureSpan"></span>pretty-hrtime
+        <span class="apidocSignatureSpan">(source, opts)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">pretty-hrtime = function (source, opts) {
+	var verbose, precise, i, spot, sourceAtStep, valAtStep, decimals, strAtStep, results, totalSeconds;
+
+	verbose = false;
+	precise = false;
+	if (opts) {
+		verbose = opts.verbose || false;
+		precise = opts.precise || false;
+	}
+
+	if (!Array.isArray(source) || source.length !== 2) {
+		return '';
+	}
+	if (typeof source[0] !== 'number' || typeof source[1] !== 'number') {
+		return '';
+	}
+
+	// normalize source array due to changes in node v5.4+
+	if (source[1] &lt; 0) {
+		totalSeconds = source[0] + source[1] / 1e9;
+		source[0] = parseInt(totalSeconds);
+		source[1] = parseFloat((totalSeconds % 1).toPrecision(9)) * 1e9;
+	}
+
+	results = '';
+
+	// foreach unit
+	for (i = 0; i &lt; 6; i++) {
+		spot = i &lt; 3 ? 0 : 1; // grabbing first or second spot in source array
+		sourceAtStep = source[spot];
+		if (i !== 3 &amp;&amp; i !== 0) {
+			sourceAtStep = sourceAtStep % convert[i-1]; // trim off previous portions
+		}
+		if (i === 2) {
+			sourceAtStep += source[1]/1e9; // get partial seconds from other portion of the array
+		}
+		valAtStep = sourceAtStep / convert[i]; // val at this unit
+		if (valAtStep &gt;= 1) {
+			if (verbose) {
+				valAtStep = Math.floor(valAtStep); // deal in whole units, subsequent laps will get the decimal portion
+			}
+			if (!precise) {
+				// don't fling too many decimals
+				decimals = valAtStep &gt;= 10 ? 0 : 2;
+				strAtStep = valAtStep.toFixed(decimals);
+			} else {
+				strAtStep = valAtStep.toString();
+			}
+			if (strAtStep.indexOf('.') &gt; -1 &amp;&amp; strAtStep[strAtStep.length-1] === '0') {
+				strAtStep = strAtStep.replace(/\.?0+$/,''); // remove trailing zeros
+			}
+			if (results) {
+				results += ' '; // append space if we have a previous value
+			}
+			results += strAtStep; // append the value
+			// append units
+			if (verbose) {
+				results += ' '+verboseDesc[i];
+				if (strAtStep !== '1') {
+					results += 's';
+				}
+			} else {
+				results += ' '+minimalDesc[i];
+			}
+			if (!verbose) {
+				break; // verbose gets as many groups as necessary, the rest get only one
+			}
+		}
+	}
+
+	return results;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocFooterDiv">
+    [ this document was created with
+    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>
+    ]
+</div>
+</div>
+</body></html>
